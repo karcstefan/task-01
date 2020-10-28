@@ -1,0 +1,38 @@
+version: '3.5'
+services:
+  app:
+    build:
+      context: .docker
+      args:
+        uid: ${UID}
+    container_name: app
+    environment:
+      - APACHE_RUN_USER=#${UID}
+      - APACHE_RUN_GROUP=#${UID}
+    volumes:
+      - .:/var/www/html
+    ports:
+      - 8000:80
+    networks:
+      - app-network
+
+  database:
+    image: mariadb:10.3
+    container_name: database
+    volumes:
+      - dbdata:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: local
+      MYSQL_DATABASE: test
+      SERVICE_NAME: database
+      SERVICE_TAGS: dev
+    networks:
+      - app-network
+
+volumes:
+  dbdata:
+    driver: local
+
+networks:
+  app-network:
+    driver: bridge
